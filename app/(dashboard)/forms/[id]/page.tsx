@@ -20,6 +20,7 @@ import {
 import { format, formatDistance } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { JsonValue } from "@prisma/client/runtime/library";
 
 async function FormDetailsPage({
   params,
@@ -136,9 +137,8 @@ async function SubmissionsTable({ id }: { id: number }) {
   });
   let rows: Row[] = [];
 
-  form.FormSubmissions.forEach((q) => {
+  form.FormSubmissions.forEach((q:{content:JsonValue,createdAt:Date}) => {
     const content = JSON.parse(JSON.stringify(q.content));
-    // console.log({content})
     rows.push({
       ...content,
       submittedAt: q.createdAt,

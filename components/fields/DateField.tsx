@@ -38,12 +38,14 @@ const extraAttributes = {
   label: "Date Field",
   helperText: "Pick a date",
   required: false,
+  dir: "ltr",
 };
 
 const propertiesSchema = z.object({
   label: z.string().min(2).max(50),
   helperText: z.string().max(200),
   required: z.boolean().default(false),
+  dir: z.boolean(),
 });
 
 export const DateFieldFormElement: FormElement = {
@@ -96,17 +98,18 @@ function FormComponent({
     setError(isInvalid === true);
   }, [isInvalid]);
 
-  const { helperText, label, placeHolder, required } = element.extraAttributes;
+  const { helperText, label, dir, required } = element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label className={cn(error && "text-red-500")}>
+      <Label dir={dir} className={cn(error && "text-red-500")}>
         {label}
         {required && "*"}
       </Label>
       <Popover>
-        <PopoverTrigger asChild>
+        <PopoverTrigger dir={dir} asChild>
           <Button
+            dir={dir}
             variant={"outline"}
             className={cn('w-full justify-start text-left font-normal',
               !date && 'text-muted-foreground ',
@@ -118,7 +121,7 @@ function FormComponent({
             
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent dir={dir} className="w-auto p-0" align="start">
           <Calendar mode="single" selected={date} onSelect={(date) => {
             setDate(date);
 
@@ -133,6 +136,7 @@ function FormComponent({
       </Popover>
       {helperText && (
         <p
+        dir={dir}
           className={cn(
             "text-muted-foreground text-[0.8rem]",
             error && "text-red-500"
@@ -161,11 +165,15 @@ function PropertiesComponent({
       label: element.extraAttributes.label,
       helperText: element.extraAttributes.helperText,
       required: element.extraAttributes.required,
+      dir: element.extraAttributes.dir === "rtl",
     },
   });
 
   useEffect(() => {
-    form.reset(element.extraAttributes);
+    form.reset({
+      ...element.extraAttributes,
+      dir: element.extraAttributes.dir === "rtl",
+    });
   }, [element, form]);
 
   function applyChanges(values: propertiesFormSchemaType) {
@@ -175,6 +183,7 @@ function PropertiesComponent({
         label: values.label,
         helperText: values.helperText,
         required: values.required,
+        dir: values.dir === true ? "rtl" : "ltr",
       },
     });
   }
@@ -257,6 +266,26 @@ function PropertiesComponent({
             );
           }}
         />
+         <FormField
+          control={form.control}
+          name="dir"
+          render={({ field }) => {
+            return (
+              <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>RTL</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
       </form>
     </Form>
   );
@@ -269,15 +298,16 @@ function DesignerComponent({
 }) {
   const element = elementInstance as CustumInstance;
 
-  const { helperText, label, required } = element.extraAttributes;
+  const { helperText, label, required,dir } = element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label>
+      <Label dir={dir}>
         {label}
         {required && "*"}
       </Label>
       <Button
+      dir={dir}
         variant={"outline"}
         className="w-full justify-start text-left font-normal"
       >
@@ -285,7 +315,7 @@ function DesignerComponent({
         <span>Pick a date</span>
       </Button>
       {helperText && (
-        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
+        <p dir={dir} className="text-muted-foreground text-[0.8rem]">{helperText}</p>
       )}
     </div>
   );

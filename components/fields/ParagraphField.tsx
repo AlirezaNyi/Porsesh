@@ -33,10 +33,12 @@ const type: ElementsType = "ParagraphField";
 
 const extraAttributes = {
   text: "Paragraph Field",
+  dir:'ltr'
 };
 
 const propertiesSchema = z.object({
   text: z.string().min(2).max(500),
+  dir: z.boolean()
 });
 
 export const ParagraphFieldFormElement: FormElement = {
@@ -67,9 +69,9 @@ function FormComponent({
 }) {
   const element = elementInstance as CustumInstance;
 
-  const { text } = element.extraAttributes;
+  const { text,dir } = element.extraAttributes;
 
-  return <p>{text}</p>;
+  return <p dir={dir}>{text}</p>;
 }
 
 type propertiesFormSchemaType = z.infer<typeof propertiesSchema>;
@@ -86,11 +88,12 @@ function PropertiesComponent({
     mode: "onBlur",
     defaultValues: {
       text: element.extraAttributes.text,
+      dir: element.extraAttributes.dir === 'rtl'
     },
   });
 
   useEffect(() => {
-    form.reset(element.extraAttributes);
+    form.reset({...element.extraAttributes,dir: element.extraAttributes.dir === 'rtl'});
   }, [element, form]);
 
   function applyChanges(values: propertiesFormSchemaType) {
@@ -98,6 +101,7 @@ function PropertiesComponent({
       ...element,
       extraAttributes: {
         text: values.text,
+        dir:values.dir === true ? 'rtl':'ltr'
       },
     });
   }
@@ -132,6 +136,26 @@ function PropertiesComponent({
             );
           }}
         />
+        <FormField
+          control={form.control}
+          name="dir"
+          render={({ field }) => {
+            return (
+              <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>RTL</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
       </form>
     </Form>
   );
@@ -144,12 +168,12 @@ function DesignerComponent({
 }) {
   const element = elementInstance as CustumInstance;
 
-  const { text } = element.extraAttributes;
+  const { text,dir } = element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label className="text-muted-foreground">Paragraph field</Label>
-      <p>{text}</p>
+      <Label dir={dir} className="text-muted-foreground">Paragraph field</Label>
+      <p dir={dir}>{text}</p>
     </div>
   );
 }

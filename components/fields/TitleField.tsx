@@ -24,17 +24,18 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Switch } from "../ui/switch";
-import { cn } from "@/lib/utils";
 import { LuHeading1 } from "react-icons/lu";
 
 const type: ElementsType = "TitleField";
 
 const extraAttributes = {
   title: "Title Field",
+  dir:'ltr'
 };
 
 const propertiesSchema = z.object({
   title: z.string().min(2).max(50),
+  dir: z.boolean()
 });
 
 export const TitleFieldFormElement: FormElement = {
@@ -65,9 +66,9 @@ function FormComponent({
 }) {
   const element = elementInstance as CustumInstance;
 
-  const { title } = element.extraAttributes;
+  const { title,dir } = element.extraAttributes;
 
-  return <p className="text-xl">{title}</p>;
+  return <p dir={dir} className="text-xl">{title}</p>;
 }
 
 type propertiesFormSchemaType = z.infer<typeof propertiesSchema>;
@@ -84,18 +85,22 @@ function PropertiesComponent({
     mode: "onBlur",
     defaultValues: {
       title: element.extraAttributes.title,
+      dir: element.extraAttributes.dir === 'rtl',
+
     },
   });
 
   useEffect(() => {
-    form.reset(element.extraAttributes);
+    form.reset({...element.extraAttributes,dir: element.extraAttributes.dir === 'rtl'});
   }, [element, form]);
 
   function applyChanges(values: propertiesFormSchemaType) {
+    console.log({values});
     updateElement(element.id, {
       ...element,
       extraAttributes: {
         title: values.title,
+        dir:values.dir === true ? 'rtl':'ltr'
       },
     });
   }
@@ -129,6 +134,26 @@ function PropertiesComponent({
             );
           }}
         />
+        <FormField
+          control={form.control}
+          name="dir"
+          render={({ field }) => {
+            return (
+              <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>RTL</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
       </form>
     </Form>
   );
@@ -141,12 +166,12 @@ function DesignerComponent({
 }) {
   const element = elementInstance as CustumInstance;
 
-  const { title } = element.extraAttributes;
+  const { title,dir } = element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label className="text-muted-foreground">Title field</Label>
-      <p className="text-xl">{title}</p>
+      <Label dir={dir} className={("text-muted-foreground")}>Title field</Label>
+      <p dir={dir} className="text-xl">{title}</p>
     </div>
   );
 }

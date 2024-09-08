@@ -33,12 +33,14 @@ const extraAttributes = {
   label: "Checkbox Field",
   helperText: "Helper text",
   required: false,
+  dir:'ltr'
 };
 
 const propertiesSchema = z.object({
   label: z.string().min(2).max(50),
   helperText: z.string().max(200),
   required: z.boolean().default(false),
+  dir: z.boolean(),
 });
 
 export const CheckboxFieldFormElement: FormElement = {
@@ -93,12 +95,13 @@ function FormComponent({
     setError(isInvalid === true);
   }, [isInvalid]);
 
-  const { helperText, label, required } = element.extraAttributes;
+  const { helperText, label, required,dir } = element.extraAttributes;
 
   const id = `checkbox-${element.id}`;
   return (
-    <div className="flex items-top space-x-2">
+    <div dir={dir} className="flex items-top gap-2 w-full">
       <Checkbox
+        dir={dir}
         id={id}
         checked={value}
         className={cn(error && "border-red-500")}
@@ -114,15 +117,15 @@ function FormComponent({
           submitValue(element.id, stringValue);
         }}
       />
-      <div className="grid gap-1.5 leading-none">
-        <Label htmlFor={id} 
+      <div  className="grid gap-1.5 leading-none">
+        <Label dir={dir} htmlFor={id} 
         className={cn(error && "text-red-500")}
         >
           {label}
           {required && "*"}
         </Label>
         {helperText && (
-          <p className={cn("text-muted-foreground text-[0.8rem]",
+          <p dir={dir} className={cn("text-muted-foreground text-[0.8rem]",
             error && "text-red-500")}>{helperText}</p>
         )}
       </div>
@@ -146,11 +149,15 @@ function PropertiesComponent({
       label: element.extraAttributes.label,
       helperText: element.extraAttributes.helperText,
       required: element.extraAttributes.required,
+      dir: element.extraAttributes.dir === "rtl",
     },
   });
 
   useEffect(() => {
-    form.reset(element.extraAttributes);
+    form.reset({
+      ...element.extraAttributes,
+      dir: element.extraAttributes.dir === "rtl",
+    });
   }, [element, form]);
 
   function applyChanges(values: propertiesFormSchemaType) {
@@ -160,6 +167,7 @@ function PropertiesComponent({
         label: values.label,
         helperText: values.helperText,
         required: values.required,
+        dir: values.dir === true ? "rtl" : "ltr",
       },
     });
   }
@@ -242,6 +250,26 @@ function PropertiesComponent({
             );
           }}
         />
+        <FormField
+          control={form.control}
+          name="dir"
+          render={({ field }) => {
+            return (
+              <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>RTL</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
       </form>
     </Form>
   );
@@ -254,18 +282,18 @@ function DesignerComponent({
 }) {
   const element = elementInstance as CustumInstance;
 
-  const { helperText, label, required } = element.extraAttributes;
+  const { helperText, label, required,dir } = element.extraAttributes;
   const id = `checkbox-${element.id}`;
   return (
-    <div className="flex items-top space-x-2">
-      <Checkbox id={id} />
+    <div dir={dir} className="flex items-top gap-2 w-full">
+      <Checkbox dir={dir} id={id} />
       <div className="grid gap-1.5 leading-none">
-        <Label htmlFor={id}>
+        <Label dir={dir}  htmlFor={id}>
           {label}
           {required && "*"}
         </Label>
         {helperText && (
-          <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
+          <p dir={dir} className="text-muted-foreground text-[0.8rem]">{helperText}</p>
         )}
       </div>
     </div>

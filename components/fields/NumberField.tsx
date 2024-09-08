@@ -34,6 +34,7 @@ const extraAttributes = {
   helperText: "Helper text",
   required: false,
   placeHolder: "0",
+  dir: "ltr",
 };
 
 const propertiesSchema = z.object({
@@ -41,6 +42,7 @@ const propertiesSchema = z.object({
   helperText: z.string().max(200),
   required: z.boolean().default(false),
   placeHolder: z.string().max(50),
+  dir: z.boolean(),
 });
 
 export const NumberFieldFormElement: FormElement = {
@@ -93,15 +95,16 @@ function FormComponent({
     setError(isInvalid === true);
   }, [isInvalid]);
 
-  const { helperText, label, placeHolder, required } = element.extraAttributes;
+  const { helperText, label, placeHolder, required,dir } = element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label className={cn(error && "text-red-500")}>
+      <Label dir={dir} className={cn(error && "text-red-500")}>
         {label}
         {required && "*"}
       </Label>
       <Input
+      dir={dir}
         type="number"
         className={cn(error && "border-red-500")}
         placeholder={placeHolder}
@@ -120,7 +123,7 @@ function FormComponent({
         }}
       />
       {helperText && (
-        <p
+        <p dir={dir}
           className={cn(
             "text-muted-foreground text-[0.8rem]",
             error && "text-red-500"
@@ -150,11 +153,15 @@ function PropertiesComponent({
       helperText: element.extraAttributes.helperText,
       placeHolder: element.extraAttributes.placeHolder,
       required: element.extraAttributes.required,
+      dir: element.extraAttributes.dir === "rtl",
     },
   });
 
   useEffect(() => {
-    form.reset(element.extraAttributes);
+    form.reset({
+      ...element.extraAttributes,
+      dir: element.extraAttributes.dir === "rtl",
+    });
   }, [element, form]);
 
   function applyChanges(values: propertiesFormSchemaType) {
@@ -165,6 +172,7 @@ function PropertiesComponent({
         helperText: values.helperText,
         placeHolder: values.placeHolder,
         required: values.required,
+        dir: values.dir === true ? "rtl" : "ltr",
       },
     });
   }
@@ -267,6 +275,26 @@ function PropertiesComponent({
             );
           }}
         />
+        <FormField
+          control={form.control}
+          name="dir"
+          render={({ field }) => {
+            return (
+              <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>RTL</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
       </form>
     </Form>
   );
@@ -279,17 +307,17 @@ function DesignerComponent({
 }) {
   const element = elementInstance as CustumInstance;
 
-  const { helperText, label, placeHolder, required } = element.extraAttributes;
+  const { helperText, label, placeHolder, required,dir } = element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label>
+      <Label dir={dir}>
         {label}
         {required && "*"}
       </Label>
-      <Input type="number" readOnly disabled placeholder={placeHolder} />
+      <Input dir={dir} type="number" readOnly disabled placeholder={placeHolder} />
       {helperText && (
-        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
+        <p dir={dir} className="text-muted-foreground text-[0.8rem]">{helperText}</p>
       )}
     </div>
   );

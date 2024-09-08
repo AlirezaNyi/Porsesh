@@ -37,6 +37,7 @@ const extraAttributes = {
   required: false,
   placeHolder: "Value Here ... ",
   rows: 3,
+  dir: "ltr",
 };
 
 const propertiesSchema = z.object({
@@ -45,6 +46,7 @@ const propertiesSchema = z.object({
   required: z.boolean().default(false),
   placeHolder: z.string().max(50),
   rows: z.number().min(1).max(10),
+  dir: z.boolean(),
 });
 
 export const TextAreaFieldFormElement: FormElement = {
@@ -97,16 +99,17 @@ function FormComponent({
     setError(isInvalid === true);
   }, [isInvalid]);
 
-  const { helperText, label, placeHolder, required, rows } =
+  const { helperText, label, placeHolder, required, rows, dir } =
     element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label className={cn(error && "text-red-500")}>
+      <Label dir={dir} className={cn(error && "text-red-500")}>
         {label}
         {required && "*"}
       </Label>
       <Textarea
+        dir={dir}
         className={cn(error && "border-red-500")}
         rows={rows}
         placeholder={placeHolder}
@@ -126,6 +129,7 @@ function FormComponent({
       />
       {helperText && (
         <p
+          dir={dir}
           className={cn(
             "text-muted-foreground text-[0.8rem]",
             error && "text-red-500"
@@ -156,11 +160,15 @@ function PropertiesComponent({
       placeHolder: element.extraAttributes.placeHolder,
       required: element.extraAttributes.required,
       rows: element.extraAttributes.rows,
+      dir: element.extraAttributes.dir === "rtl",
     },
   });
 
   useEffect(() => {
-    form.reset(element.extraAttributes);
+    form.reset({
+      ...element.extraAttributes,
+      dir: element.extraAttributes.dir === "rtl",
+    });
   }, [element, form]);
 
   function applyChanges(values: propertiesFormSchemaType) {
@@ -172,6 +180,7 @@ function PropertiesComponent({
         placeHolder: values.placeHolder,
         required: values.required,
         rows: values.rows,
+        dir: values.dir === true ? "rtl" : "ltr",
       },
     });
   }
@@ -276,6 +285,26 @@ function PropertiesComponent({
         />
         <FormField
           control={form.control}
+          name="dir"
+          render={({ field }) => {
+            return (
+              <FormItem className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="space-y-0.5">
+                  <FormLabel>RTL</FormLabel>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+        <FormField
+          control={form.control}
           name="rows"
           render={({ field }) => {
             return (
@@ -309,18 +338,20 @@ function DesignerComponent({
 }) {
   const element = elementInstance as CustumInstance;
 
-  const { helperText, label, placeHolder, required, rows } =
+  const { helperText, label, placeHolder, required, dir } =
     element.extraAttributes;
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <Label>
+      <Label dir={dir}>
         {label}
         {required && "*"}
       </Label>
-      <Textarea readOnly disabled placeholder={placeHolder}/>
+      <Textarea dir={dir} readOnly disabled placeholder={placeHolder} />
       {helperText && (
-        <p className="text-muted-foreground text-[0.8rem]">{helperText}</p>
+        <p dir={dir} className="text-muted-foreground text-[0.8rem]">
+          {helperText}
+        </p>
       )}
     </div>
   );

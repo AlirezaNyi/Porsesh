@@ -3,19 +3,24 @@
 import prisma from "@/lib/prisma";
 import { formSchema, formSchematype } from "@/schemas/form";
 import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 class UserNotFoundErr extends Error {}
+// const router = useRouter();
 
 export async function GetFormStats() {
   const user = await currentUser();
 
   if (!user) {
+    redirect('/sign-in')
     throw new UserNotFoundErr();
+    
   }
 
   const stats = prisma.form.aggregate({
     where: {
       userId: user.id,
+      status:1
     },
     _sum: {
       visits: true,
@@ -50,7 +55,8 @@ export async function CreateForm(data: formSchematype) {
   }
   const user = await currentUser();
 
-  if (!user) throw new UserNotFoundErr();
+    
+  if (!user) redirect('/sign-in');//throw new UserNotFoundErr();
 
   const { name, description } = data;
 
@@ -70,11 +76,13 @@ export async function CreateForm(data: formSchematype) {
 export async function GetForms() {
   const user = await currentUser();
 
-  if (!user) throw new UserNotFoundErr();
+  if (!user) redirect('/sign-in');
+  //throw new UserNotFoundErr();
 
   return await prisma.form.findMany({
     where: {
       userId: user.id,
+      status:1
     },
     orderBy: {
       createdAt: "desc",
@@ -85,12 +93,14 @@ export async function GetForms() {
 export async function GetFormById(id: number) {
   const user = await currentUser();
 
-  if (!user) throw new UserNotFoundErr();
+  if (!user) redirect('/sign-in');//throw new UserNotFoundErr();
 
   return await prisma.form.findUnique({
     where: {
       userId: user.id,
       id,
+      status:1
+
     },
   });
 }
@@ -98,7 +108,7 @@ export async function GetFormById(id: number) {
 export async function UpdateFormContent(id: number, jsonContent: string) {
   const user = await currentUser();
 
-  if (!user) throw new UserNotFoundErr();
+  if (!user) redirect('/sign-in');//throw new UserNotFoundErr();
 
   return await prisma.form.update({
     where: {
@@ -114,7 +124,7 @@ export async function UpdateFormContent(id: number, jsonContent: string) {
 export async function PublishForm(id: number) {
   const user = await currentUser();
 
-  if (!user) throw new UserNotFoundErr();
+  if (!user) redirect('/sign-in');//throw new UserNotFoundErr();
 
   return await prisma.form.update({
     where: {
@@ -165,15 +175,31 @@ export async function SubmitForm(formUrl: string, jsonContent: string) {
 export async function GetFormWithSubmissions(id: number) {
   const user = await currentUser();
 
-  if (!user) throw new UserNotFoundErr();
+  if (!user) redirect('/sign-in');//throw new UserNotFoundErr();
 
   return await prisma.form.findUnique({
     where:{
         id,
-        userId:user.id
+        userId:user.id,
+      status:1
     },
     include:{
         FormSubmissions:true
     }
   })
+}
+
+export async function DeleteForm(id:number) {
+  const user = await currentUser();
+
+  if (!user) redirect('/sign-in');
+
+  return await prisma.form.update({
+    data: {
+      status:3
+    },
+    where: {
+      id
+    },
+  });
 }
