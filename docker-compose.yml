@@ -39,11 +39,10 @@ services:
       POSTGRES_PRISMA_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-porsesh}
       DATABASE_URL:        postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-porsesh}
 
-      # Clerk authentication (required — set these in your .env file)
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      CLERK_SECRET_KEY:                  ${CLERK_SECRET_KEY}
-    env_file:
-      - .env
+      # Clerk authentication — Compose reads these from the .env file at project root.
+      # docker compose up will fail immediately if either is unset, preventing silent failures.
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:?Set NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY in .env}
+      CLERK_SECRET_KEY:                  ${CLERK_SECRET_KEY:?Set CLERK_SECRET_KEY in .env}
 
 volumes:
   db-data:

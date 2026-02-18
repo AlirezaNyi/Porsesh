@@ -1,7 +1,7 @@
 # ==============================================================
 # Stage 1 — deps: install all dependencies
 # ==============================================================
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -10,7 +10,7 @@ RUN npm ci
 # ==============================================================
 # Stage 2 — builder: compile the application
 # ==============================================================
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -26,7 +26,7 @@ RUN npm run build
 # ==============================================================
 # Stage 3 — runner: minimal production image
 # ==============================================================
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -60,4 +60,4 @@ USER nextjs
 EXPOSE 3000
 
 # Apply pending DB migrations then start the standalone Node.js server
-CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node server.js"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && exec node server.js"]
