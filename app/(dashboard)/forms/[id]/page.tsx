@@ -25,11 +25,11 @@ import { JsonValue } from "@prisma/client/runtime/library";
 async function FormDetailsPage({
   params,
 }: {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
   const form = await GetFormById(Number(id));
   if (!form) throw new Error("form not found");
 

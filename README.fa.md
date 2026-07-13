@@ -6,8 +6,8 @@
 
 ## تکنولوژی‌ها
 
-- **Next.js 14** (App Router) + **TypeScript**
-- **Prisma ORM** + **PostgreSQL**
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **Prisma ORM** + **PostgreSQL 18**
 - احراز هویت با **Clerk**
 - سازنده فرم با **dnd-kit**
 - **Tailwind CSS** + **shadcn/ui**
@@ -39,7 +39,7 @@
 
 ### پیش‌نیازها
 
-- **Node.js 18+** (ایمیج Docker از Node 20 استفاده می‌کند)
+- **Node.js 20.9+** (ایمیج Docker از Node 22 استفاده می‌کند)
 - **PostgreSQL** (یا استفاده از Docker Compose)
 - یک اپلیکیشن [Clerk](https://clerk.com) (کلیدهای publishable و secret)
 
@@ -87,7 +87,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-این دستور PostgreSQL 15 و اپ Next.js را بالا می‌آورد. هنگام استارت، کانتینر اپ `prisma migrate deploy` را اجرا می‌کند و سپس سرور را روی [http://localhost:3000](http://localhost:3000) سرو می‌دهد.
+این دستور PostgreSQL 18 و اپ Next.js را بالا می‌آورد. هنگام استارت، کانتینر اپ `prisma migrate deploy` را اجرا می‌کند و سپس سرور را روی [http://localhost:3000](http://localhost:3000) سرو می‌دهد.
 
 ## اسکریپت‌ها
 

@@ -6,8 +6,8 @@
 
 ## Tech Stack
 
-- **Next.js 14** (App Router) + **TypeScript**
-- **Prisma ORM** + **PostgreSQL**
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **Prisma ORM** + **PostgreSQL 18**
 - **Clerk** authentication
 - **dnd-kit** drag-and-drop builder
 - **Tailwind CSS** + **shadcn/ui**
@@ -39,7 +39,7 @@
 
 ### Prerequisites
 
-- **Node.js 18+** (Docker image uses Node 20)
+- **Node.js 20.9+** (Docker image uses Node 22)
 - **PostgreSQL** (or use Docker Compose)
 - A [Clerk](https://clerk.com) application (publishable + secret keys)
 
@@ -87,7 +87,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-This starts PostgreSQL 15 and the Next.js app. On boot the app container runs `prisma migrate deploy` then starts the server at [http://localhost:3000](http://localhost:3000).
+This starts PostgreSQL 18 and the Next.js app. On boot the app container runs `prisma migrate deploy` then starts the server at [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 

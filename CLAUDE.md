@@ -8,7 +8,7 @@ This file documents the architecture, conventions, and development workflows for
 
 Porsesh is a **drag-and-drop form builder and analytics platform** built with:
 
-- **Next.js 14** (App Router, React Server Components)
+- **Next.js 16** (App Router, React Server Components) + **React 19**
 - **TypeScript**
 - **Prisma ORM** with **PostgreSQL**
 - **Clerk** for authentication
@@ -82,7 +82,7 @@ Porsesh/
 │
 ├── public/                     # Static assets (paper.svg background textures)
 ├── middleware.ts               # Clerk auth middleware (protects all routes)
-├── Dockerfile                  # Multi-stage Docker build (node:18-alpine)
+├── Dockerfile                  # Multi-stage Docker build (node:22-alpine)
 ├── docker-compose.yml          # App + PostgreSQL stack
 ├── tailwind.config.ts          # Tailwind configuration
 ├── components.json             # shadcn/ui CLI configuration
@@ -251,7 +251,7 @@ The `TextField` (and likely other fields) supports a `dir` property (`"ltr"` | `
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.9+
 - PostgreSQL (or Docker)
 - A `.env` file with the following variables:
 
@@ -275,7 +275,7 @@ npm run dev               # Start dev server at http://localhost:3000
 docker-compose up --build
 ```
 
-This starts a PostgreSQL 15 container and the Next.js app. The app container runs `npx prisma migrate deploy && npm run start` on boot.
+This starts a PostgreSQL 18 container and the Next.js app. The app container runs `npx prisma migrate deploy && node server.js` on boot.
 
 ### Available Scripts
 

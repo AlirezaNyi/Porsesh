@@ -1,16 +1,18 @@
 # ==============================================================
 # Stage 1 — deps: install all dependencies
 # ==============================================================
-FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat
+FROM node:22-alpine AS deps
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json package-lock.json .npmrc ./
+# Schema is not present in this stage; prisma generate runs in the builder stage
+RUN npm ci --ignore-scripts
 
 # ==============================================================
 # Stage 2 — builder: compile the application
 # ==============================================================
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
+RUN apk add --no-cache openssl
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -26,8 +28,8 @@ RUN npm run build
 # ==============================================================
 # Stage 3 — runner: minimal production image
 # ==============================================================
-FROM node:20-alpine AS runner
-RUN apk add --no-cache libc6-compat
+FROM node:22-alpine AS runner
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -49,7 +51,6 @@ COPY --from=builder /app/.next/static     ./.next/static
 # Prisma schema + CLI — merged on top of the standalone node_modules
 # Required for `prisma migrate deploy` to run at container startup
 COPY --from=builder /app/prisma                        ./prisma
-COPY --from=builder /app/node_modules/.bin/prisma      ./node_modules/.bin/prisma
 COPY --from=builder /app/node_modules/prisma           ./node_modules/prisma
 COPY --from=builder /app/node_modules/@prisma          ./node_modules/@prisma
 COPY --from=builder /app/node_modules/.prisma          ./node_modules/.prisma
@@ -60,4 +61,4 @@ USER nextjs
 EXPOSE 3000
 
 # Apply pending DB migrations then start the standalone Node.js server
-CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && exec node server.js"]
+CMD ["sh", "-c", "node ./node_modules/prisma/build/index.js migrate deploy && exec node server.js"]
